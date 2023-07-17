@@ -2,7 +2,6 @@ const express = require("express");
 const hbs = require("express-handlebars");
 
 const { Client } = require("pg");
-const port = 1234;
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -184,5 +183,5 @@ app.post("/post", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  console.log(`App listening at http://localhost:${process.env.APP_PORT}`);
 });
