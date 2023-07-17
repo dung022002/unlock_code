@@ -48,6 +48,7 @@ const courseConfig = {
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 };
+
 let err = false;
 let msg = null;
 app.get("/", (req, res) => {
