@@ -24,29 +24,29 @@ app.use("/js", express.static("js"));
 
 // keycloak database config
 const keycloakConfig = {
-  user: process.env.USER,
-  host: process.env.HOST,
-  database: process.env.KEYCLOAK,
-  password: process.env.PASSWORD,
-  port: process.env.PORT,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_KEYCLOAK,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 };
 
 // mcbook_promotion_dev config
 const promotionConfig = {
-  user: process.env.USER,
-  host: process.env.HOST,
-  database: process.env.PROMOTION,
-  password: process.env.PASSWORD,
-  port: process.env.PORT,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_PROMOTION,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 };
 
 // mcbook_courses_dev config
 const courseConfig = {
-  user: process.env.USER,
-  host: process.env.HOST,
-  database: process.env.COURSE,
-  password: process.env.PASSWORD,
-  port: process.env.PORT,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_COURSE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 };
 let err = false;
 let msg = null;
