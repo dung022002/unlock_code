@@ -3,6 +3,7 @@ const hbs = require("express-handlebars");
 
 const { Client } = require("pg");
 const app = express();
+const port = process.env.PORT;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
