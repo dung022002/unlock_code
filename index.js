@@ -3,11 +3,12 @@ const hbs = require("express-handlebars");
 
 const { Client } = require("pg");
 const app = express();
-const port = process.env.PORT;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 require("dotenv").config();
+const port = process.env.APP_PORT;
+
 app.engine(
   "hbs",
   hbs.engine({
@@ -184,5 +185,5 @@ app.post("/post", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${process.env.APP_PORT}`);
+  console.log(`App listening at http://localhost:${port}`);
 });
