@@ -106,9 +106,6 @@ app.post("/post", async (req, res) => {
     // Fetch data from the source table
     const result2 = await Client2.query(query2a);
     const data2 = result2.rows;
-    await Client2.query(query2b);
-    // Disconnect from the source database
-    await Client2.end();
 
     if (!data2[0]) {
       err = true;
@@ -125,18 +122,14 @@ app.post("/post", async (req, res) => {
     } else {
       giftPromoId = promoCode.gift_promotion_id;
     }
-    console.log(`gift promotion id: ${giftPromoId}`);
+    await Client2.query(query2b);
 
     // Which courses does code applies to?
     // Query to select data from the gift_promotion_courses table
     const query3 = `SELECT DISTINCT courses_id FROM gift_promotion_courses WHERE gift_promotion_id = \'${giftPromoId}\'`;
 
-    // Connect to the mcbook_promotions_dev database
-    const client3 = new Client(promotionConfig);
-    await client3.connect();
-
     // Fetch data from the gift_promotion_courses table
-    const result3 = await client3.query(query3);
+    const result3 = await Client2.query(query3);
     const data3 = result3.rows;
 
     const arr = [];
@@ -145,40 +138,48 @@ app.post("/post", async (req, res) => {
     }
     console.log(`courses id that code applies to: ${arr}`);
     // Disconnect from the mcbook_promotions_dev database
-    await client3.end();
+    await Client2.end();
 
     // Does user have those courses?
+    const add = [];
+    const exist = [];
     for (const iterator of arr) {
-      try {
-        // Query to select/create data from the courses_users table
-        const query4a = `SELECT * FROM courses_users WHERE user_id = \'${userId}\' AND course_id = \'${iterator}\'`;
-        const query4b = `INSERT INTO courses_users (user_id, course_id, code, used_at, created_at, updated_at) VALUES (\'${userId}\', \'${iterator}\', \'${code}\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+      const query4a = `SELECT * FROM courses_users WHERE user_id = \'${userId}\' AND course_id = \'${iterator}\'`;
+      const query4b = `INSERT INTO courses_users (user_id, course_id, code, used_at, created_at, updated_at) VALUES (\'${userId}\', \'${iterator}\', \'${code}\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
 
-        // Connect to the mcbook_courses_dev database
-        const client4 = new Client(courseConfig);
-        await client4.connect();
-
-        // Fetch data from the courses_users table
-        const result4 = await client4.query(query4a);
-        const data4 = result4.rows;
-
-        if (data4[0]) {
-          err = true;
-          msg = `Tài khoản ${email} đã sở hữu khóa học này, mã khóa học: ${iterator}.`;
-          return res.redirect("/");
-        } else {
-          await client4.query(query4b);
-
-          // Disconnect from the mcbook_courses_dev database
-          await client4.end();
-          err = true;
-          msg = `Tài khoản ${email} kích hoạt thành công mã khuyến mại, mã khóa học mới: ${iterator}.`;
-          return res.redirect("/");
-        }
-      } catch (error) {
-        console.log(error);
+      // // Query to select/create data from the courses_users table
+      // const query4a = `SELECT * FROM courses_users WHERE user_id = \'${userId}\' AND course_id = \'${iterator}\'`;
+      // const query4b = `INSERT INTO courses_users (user_id, course_id, code, used_at, created_at, updated_at) VALUES (\'${userId}\', \'${iterator}\', \'${code}\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+      // // Connect to the mcbook_courses_dev database
+      const Client4 = new Client(courseConfig);
+      await Client4.connect();
+      // Fetch data from the courses_users table
+      const result4 = await Client4.query(query4a);
+      const data4 = result4.rows;
+      console.log(data4);
+      if (data4[0]) {
+        exist.push(iterator);
+        // msg = `Tài khoản ${email} đã sở hữu khóa học này, mã khóa học: ${iterator}.`;
+        // return res.redirect("/");
+      } else {
+        await Client4.query(query4b);
+        // Disconnect from the mcbook_courses_dev database
+        await Client4.end();
+        add.push(iterator);
+        // err = true;
+        // msg = `Tài khoản ${email} kích hoạt thành công mã khuyến mại, mã khóa học mới: ${iterator}.`;
+        // return res.redirect("/");
       }
     }
+    err = true;
+    msg = `Tài khoản ${email} kích hoạt thành công mã khuyến mại, mã khóa học mới: ${add.toString()}.`;
+    if (exist.length > 0) {
+      msg = `Tài khoản ${email} kích hoạt thành công mã khuyến mại, mã khóa học mới: ${add.toString()}. Khóa học: ${exist.toString()} đã được kích hoạt từ trước đó.`;
+      if (add.length == 0) {
+        msg = `Tài khoản ${email} đã sở hữu khóa học này, mã khóa học: ${exist.toString()}.`;
+      }
+    }
+    return res.redirect("/");
   } catch (error) {
     console.log(error);
   }
